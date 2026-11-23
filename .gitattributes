@@ -1,0 +1,3 @@
+# Scripts y reglas de Linux siempre con saltos de línea LF (con CRLF bash y udev fallan).
+*.sh     text eol=lf
+*.rules  text eol=lf

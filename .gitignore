@@ -1,0 +1,7 @@
+/bin/*
+!/bin/MonitBat.exe
+obj/
+*.pdb
+# Juicebar: build output and published packages
+app/**/bin/
+dist/

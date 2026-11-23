@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Interfaz multiplataforma (Windows 10/11, Linux, macOS) con Avalonia: iconos de bandeja y ventanas. -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Juicebar</AssemblyName>
+    <RootNamespace>Juicebar.App</RootNamespace>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <Version>2.2.0</Version>
+    <Product>Juicebar</Product>
+    <!-- Icon of Juicebar.exe (Windows); macOS and Linux get .icns / .png from packaging/icons in publish.ps1 -->
+    <ApplicationIcon>..\..\packaging\icons\juicebar.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Same icon for windows with a title bar (diagnostics) -->
+    <AvaloniaResource Include="..\..\packaging\icons\juicebar.png" Link="Assets\juicebar.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Juicebar.Core\Juicebar.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,5 @@
+# Juicebar: lets the logged-in user read HID receivers without root.
+# Installed in /etc/udev/rules.d/ by install.sh. One vendor per line.
+KERNEL=="hidraw*", ATTRS{idVendor}=="3554", TAG+="uaccess"
+KERNEL=="hidraw*", ATTRS{idVendor}=="1b1c", TAG+="uaccess"
+KERNEL=="hidraw*", ATTRS{idVendor}=="046d", TAG+="uaccess"

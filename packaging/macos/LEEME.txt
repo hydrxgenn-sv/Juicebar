@@ -1,0 +1,16 @@
+Juicebar para macOS (sin firma de Apple Developer)
+
+1. Copia Juicebar.app a la carpeta Aplicaciones.
+2. Abre Terminal y ejecuta:
+
+   chmod +x /Applications/Juicebar.app/Contents/MacOS/Juicebar
+   xattr -dr com.apple.quarantine /Applications/Juicebar.app
+   codesign --force --deep --sign - /Applications/Juicebar.app
+
+   (la última línea firma la app de forma local; en Mac con chip Apple es obligatoria)
+3. Abre Juicebar. El icono aparece en la barra de menús, arriba a la derecha.
+
+Si macOS pide permiso de "Monitorización de entrada" para leer los dispositivos,
+concédelo en Ajustes del Sistema > Privacidad y seguridad.
+
+Usa Juicebar-osx-arm64 en Mac con chip Apple (M1 o posterior) y Juicebar-osx-x64 en Mac con Intel.
