@@ -11,7 +11,7 @@
   <ItemGroup>
     <PackageReference Include="HidSharp" Version="2.1.0" />
     <!-- Windows only: reads LibreHardwareMonitor / ACPI sensors through WMI -->
-    <PackageReference Include="System.Management" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="11.0.0" />
   </ItemGroup>
 
 </Project>
