@@ -102,6 +102,8 @@ public sealed class Settings
     public int WidgetY { get; set; } = int.MinValue;
     public bool Hotkey { get; set; } = true;
     public bool CheckUpdates { get; set; } = true;
+    public DateTime UpdateRemindAt { get; set; } = DateTime.MinValue;   // no update alert before this time
+    public string SkippedVersion { get; set; } = "";                    // tag the user chose to skip
 
     static string FilePath => AppPaths.File("config.ini");
 
@@ -147,6 +149,10 @@ public sealed class Settings
                     case "widget_y": if (int.TryParse(val, out int y)) s.WidgetY = y; break;
                     case "hotkey": s.Hotkey = Bool(val, s.Hotkey); break;
                     case "check_updates": s.CheckUpdates = Bool(val, s.CheckUpdates); break;
+                    case "update_remind_at":
+                        if (DateTime.TryParseExact(val, "yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime at)) s.UpdateRemindAt = at;
+                        break;
+                    case "update_skip": s.SkippedVersion = val; break;
                 }
             }
         }
@@ -179,6 +185,8 @@ public sealed class Settings
             if (WidgetX != int.MinValue) sb.Append($"widget_x={WidgetX}\nwidget_y={WidgetY}\n");
             sb.Append($"hotkey={B(Hotkey)}\n");
             sb.Append($"check_updates={B(CheckUpdates)}\n");
+            if (UpdateRemindAt > DateTime.MinValue) sb.Append($"update_remind_at={UpdateRemindAt.ToString("yyyy-MM-ddTHH:mm:ss", CultureInfo.InvariantCulture)}\n");
+            if (SkippedVersion.Length > 0) sb.Append($"update_skip={SkippedVersion}\n");
             System.IO.File.WriteAllText(FilePath, sb.ToString(), new UTF8Encoding(false));
         }
         catch (Exception ex) { Log.Write("save config: " + ex.Message); }

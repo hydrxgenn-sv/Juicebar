@@ -38,6 +38,7 @@ static class Program
 
         App.StartDiag = diag;
         App.StartShow = show;
+        App.StartUpdated = HasArg(args, "updated");
         return BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, diag ? ShutdownMode.OnMainWindowClose : ShutdownMode.OnExplicitShutdown);
     }
 
@@ -47,13 +48,21 @@ static class Program
             .With(new MacOSPlatformOptions { ShowInDock = false })
             .LogToTrace();
 
+    // Before an update restarts the app: lets the new copy take the single-instance lock.
+    public static void ReleaseInstance()
+    {
+        try { instance?.ReleaseMutex(); } catch { }
+        instance?.Dispose();
+        instance = null;
+    }
+
     static bool HasArg(string[] args, string name) =>
         args.Any(a => a.Trim('-', '/').Equals(name, StringComparison.OrdinalIgnoreCase));
 }
 
 public sealed class App : Application
 {
-    public static bool StartDiag, StartShow;
+    public static bool StartDiag, StartShow, StartUpdated;
     TrayController? tray;
 
     public override void Initialize()

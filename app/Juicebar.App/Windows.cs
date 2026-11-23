@@ -246,14 +246,23 @@ public sealed class ToastWindow : FlyoutWindow
         Title = "Juicebar";
         ShowActivated = false;
         timer.Tick += (s, e) => { timer.Stop(); Hide(); };
-        PointerReleased += (s, e) => Hide();
+        PointerReleased += (s, e) =>
+        {
+            Action? action = click;
+            Hide();
+            action?.Invoke();
+        };
     }
+
+    Action? click;
 
     public void SetLight(bool l) => light = l;
 
     // 'above': the details window, when open; the alert goes right on top of it instead of behind it.
-    public void Notify(string title, string body, Color titleColor, Window? above = null)
+    // 'onClick': what clicking the alert does (besides closing it).
+    public void Notify(string title, string body, Color titleColor, Window? above = null, Action? onClick = null)
     {
+        click = onClick;
         var ink = Ink.For(light);
         SetPanel(new Border
         {

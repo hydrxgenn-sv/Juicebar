@@ -9,7 +9,7 @@
     <AssemblyName>Juicebar</AssemblyName>
     <RootNamespace>Juicebar.App</RootNamespace>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <Version>2.2.1</Version>
+    <Version>2.3.0</Version>
     <Product>Juicebar</Product>
     <!-- Icon of Juicebar.exe (Windows); macOS and Linux get .icns / .png from packaging/icons in publish.ps1 -->
     <ApplicationIcon>..\..\packaging\icons\juicebar.ico</ApplicationIcon>

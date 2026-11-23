@@ -20,8 +20,10 @@ want it.
   never writes settings or firmware.
 - Never sends your readings anywhere. The only network request is the optional update check, an
   anonymous call to the public GitHub API for this repository's latest release.
-- Never downloads or runs code by itself: an update is only offered as a link to this
-  repository's releases page.
+- Downloads an update only when you click **Update now**, only from this repository's release
+  assets, and installs it only if its SHA-256 matches the release's `SHA256SUMS.txt`. If the check
+  fails nothing is replaced, and the previous copy is kept as a backup until the next start.
+- Opens only `https` links that point to this repository.
 - Runs external tools (`nvidia-smi`, `headsetcontrol`, `upower`, `system_profiler`...) only from
   system folders and absolute `PATH` entries, never from its own folder or the working directory.
 - On Linux, the udev rule grants access to the exact supported receivers only, not to whole

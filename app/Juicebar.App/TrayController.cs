@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Versioning;
 using Avalonia;
@@ -36,7 +37,8 @@ sealed class TrayController
     string lastUpdate = "";
     SystemSnapshot? lastSys;
     Updater.Release? update;
-    bool updateNotified;
+    UpdateWindow? updateWindow;
+    bool installing;
     Lang menuLang;
 
     public TrayController(Application app, IClassicDesktopStyleApplicationLifetime desktop, bool showAtStart)
@@ -80,6 +82,11 @@ sealed class TrayController
         ApplyHotkey();
         ApplyWidget();
         DispatcherTimer.RunOnce(AutoCheckUpdates, TimeSpan.FromSeconds(20));
+        Updater.CleanupAfterUpdate();
+        DispatcherTimer.RunOnce(Updater.CleanupAfterUpdate, TimeSpan.FromSeconds(30));   // the old copy may still be closing
+        if (App.StartUpdated)
+            DispatcherTimer.RunOnce(() => Notify(Loc.T("upd_updated_title"), Loc.F("upd_updated_body", Updater.CurrentText), Palette.Charge(WindowLight)),
+                                    TimeSpan.FromSeconds(3));
 
         SingleInstance.Listen(() => Dispatcher.UIThread.Post(ShowStatus));
         if (showAtStart) ShowStatus();
@@ -109,10 +116,7 @@ sealed class TrayController
         m.Items.Add(startup);
         m.Items.Add(Item(Loc.T("menu_diag"), () => new DiagWindow().Show()));
         if (update != null)
-        {
-            string url = update.Url;
-            m.Items.Add(Item(Loc.F("menu_update", update.Tag), () => Shell.Open(url)));
-        }
+            m.Items.Add(Item(Loc.F("menu_update", update.Tag), ShowUpdate));
         m.Items.Add(new NativeMenuItemSeparator());
         m.Items.Add(Item(Loc.T("menu_exit"), Exit));
         return m;
@@ -291,9 +295,9 @@ sealed class TrayController
         d.WasCharging = d.Last.Charging || d.Last.Full;
     }
 
-    void Notify(string title, string body, Color color)
+    void Notify(string title, string body, Color color, Action? onClick = null)
     {
-        toast.Notify(title, body, color, status.IsVisible ? status : null);
+        toast.Notify(title, body, color, status.IsVisible ? status : null, onClick);
         if (settings.Sound) Sound.Play();
     }
 
@@ -329,7 +333,7 @@ sealed class TrayController
     {
         if (!settings.CheckUpdates) return;
         Updater.Result res = await Updater.CheckAsync();
-        if (res.Release is { } r && Updater.IsNewer(r)) SetUpdate(r);
+        if (res.Release is { } r && Updater.IsNewer(r)) SetUpdate(r, automatic: true);
     }
 
     async Task<string> CheckNowAsync()
@@ -338,17 +342,63 @@ sealed class TrayController
         if (!res.Ok) return Loc.T("upd_error");
         if (res.Release is not { } r) return Loc.T("upd_none");
         if (!Updater.IsNewer(r)) return Loc.T("upd_latest");
-        SetUpdate(r);
+        SetUpdate(r, automatic: false);
+        ShowUpdate();
         return Loc.F("upd_new", r.Tag);
     }
 
-    void SetUpdate(Updater.Release r)
+    // A newer release exists: the tray menu offers it, and an alert appears unless the user skipped this
+    // version or asked to be reminded later. Each alert schedules the next reminder 24 h later.
+    void SetUpdate(Updater.Release r, bool automatic)
     {
         update = r;
         RebuildMenus();
-        if (updateNotified) return;
-        updateNotified = true;
-        Notify(Loc.T("alert_update_title"), Loc.F("alert_update_body", r.Tag), Palette.Accent(WindowLight));
+        if (!automatic || settings.SkippedVersion == r.Tag || DateTime.Now < settings.UpdateRemindAt) return;
+        settings.UpdateRemindAt = DateTime.Now.AddHours(24);
+        settings.Save();
+        Notify(Loc.T("alert_update_title"), Loc.F("alert_update_body", r.Tag), Palette.Accent(WindowLight), ShowUpdate);
+    }
+
+    // What's new, with "Update now", "Release page", "Remind me tomorrow" and "Skip this version".
+    void ShowUpdate()
+    {
+        if (update == null) return;
+        Updater.Release r = update;
+        updateWindow?.Close();
+        var w = new UpdateWindow(r, WindowLight, Updater.CanInstall(r));
+        w.InstallRequested += () => InstallUpdate(w, r);
+        w.LaterRequested += () => { settings.UpdateRemindAt = DateTime.Now.AddHours(24); settings.Save(); };
+        w.SkipRequested += () => { settings.SkippedVersion = r.Tag; settings.Save(); };
+        updateWindow = w;
+        w.ShowCentered();
+    }
+
+    // One-click update: download, verify the SHA-256, replace the installed copy and restart.
+    async void InstallUpdate(UpdateWindow w, Updater.Release r)
+    {
+        if (installing) return;
+        installing = true;
+        try
+        {
+            string exe = await Task.Run(() => Updater.InstallAsync(r, (stage, fraction) => Dispatcher.UIThread.Post(() =>
+                w.SetProgress(stage switch
+                {
+                    Updater.Stage.Downloading => Loc.F("upd_downloading", (int)(fraction * 100)),
+                    Updater.Stage.Verifying => Loc.T("upd_verifying"),
+                    _ => Loc.T("upd_installing"),
+                }, stage == Updater.Stage.Downloading ? fraction : null))));
+            w.SetProgress(Loc.T("upd_restarting"), null);
+            Log.Write($"updated from {Updater.CurrentText} to {r.Tag}");
+            Program.ReleaseInstance();
+            Process.Start(new ProcessStartInfo(exe, "--updated") { UseShellExecute = false });
+            Exit();
+        }
+        catch (Exception ex)
+        {
+            Log.Write("update failed: " + ex.Message);
+            w.SetError(Loc.F("upd_failed", ex.Message));
+        }
+        finally { installing = false; }
     }
 
     // ---- tray icons ----

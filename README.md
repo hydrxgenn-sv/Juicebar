@@ -39,7 +39,7 @@ Juicebar lives in your system tray and shows the charge of your wireless mouse, 
 | ⌨️ **Keyboard shortcut** | `Ctrl+Alt+B` on Windows (falls back to `Ctrl+Alt+M` or `Ctrl+Shift+Alt+B` if taken). |
 | 🏷️ **Your devices, your way** | Rename, recolor, reorder, hide or forget any device. Devices you've seen before show as *Disconnected* instead of vanishing. |
 | 🌍 **English and Spanish** | English by default, Spanish one click away. |
-| 🔄 **Update check** | Finds new releases on GitHub and offers the download from the tray menu. |
+| 🔄 **One-click updates** | Tells you when a new version is out, shows what's new, and updates itself in one click after verifying the download. |
 
 <p align="center">
   <img src="docs/icons.png" alt="Settings window showing the four tray icon styles and the four details window styles" width="640">
@@ -147,11 +147,33 @@ Your data stays on your computer:
 
 It holds `config.ini`, `devices.txt`, `history.csv` (last 24 h), `stats.csv` (battery health) and `juicebar.log`.
 
+## 🔄 Updates
+
+Juicebar keeps itself up to date without getting in your way.
+
+1. **It checks for you.** About 20 seconds after it starts, and every 6 hours after that, Juicebar looks for a newer release of this repository on GitHub.
+2. **It tells you, once.** When there's one, an alert appears next to the tray and the tray menu offers **Update to vX.Y.Z...**.
+3. **It shows what's new.** Clicking the alert or the menu opens the release notes, with four choices:
+
+   | Choice | What happens |
+   |---|---|
+   | **Update now** | Downloads the package for your system, verifies it, installs it and restarts Juicebar. Your settings, devices and history stay as they are. |
+   | **Release page** | Opens the release on GitHub, if you prefer to download it yourself. |
+   | **Remind me tomorrow** | No more alerts for 24 hours. |
+   | **Skip this version** | No alerts for this version; the tray menu still offers it. |
+
+4. **It reminds you.** If you ignore an update, Juicebar reminds you again a day later.
+
+**Safe by design.** The update is downloaded only from this repository's releases, and its SHA-256 must match the release's `SHA256SUMS.txt` before anything is replaced. If anything fails, your current version keeps working. The previous copy is kept as a backup until the next start. Updates need version 2.3.0 or later; you can switch the check off in *Settings → General* or run it any time with **Check now**.
+
+> [!TIP]
+> Maintainers: publishing an update is just pushing a tag such as `v2.4.0`. The [release workflow](.github/workflows/release.yml) builds the packages and the checksum file, and every running copy finds the release on its own. Write your release notes on GitHub; they're what users see under *What's new*.
+
 ## 🔒 Privacy
 
 Juicebar talks to your devices locally and never sends readings anywhere. The only network request is the optional update check: an anonymous call to the public GitHub API for this repository's latest release. You can switch it off in *Settings → General*.
 
-It runs without administrator rights, only **reads** from your devices, never downloads or runs code by itself, and every release ships with SHA-256 checksums and a signed build-provenance attestation. See the [security policy](SECURITY.md) to verify a download or report a vulnerability.
+It runs without administrator rights, only **reads** from your devices, downloads an update only when you click **Update now** (and installs it only after verifying its checksum), and every release ships with SHA-256 checksums and a signed build-provenance attestation. See the [security policy](SECURITY.md) to verify a download or report a vulnerability.
 
 ## 🛠️ Build from source
 
