@@ -37,12 +37,16 @@ public static class Run
         catch { return null; }
     }
 
-    // Finds an executable next to Juicebar or on the PATH.
+    // Finds an executable in the system folder (Windows) or in absolute PATH entries.
+    // The app's own folder and relative PATH entries (".", "bin"...) are skipped on purpose,
+    // so a file planted next to Juicebar or in the working directory is never run.
     public static string? Which(string name)
     {
-        string[] names = OperatingSystem.IsWindows() ? new[] { name + ".exe", name } : new[] { name };
-        var dirs = new List<string> { AppContext.BaseDirectory };
-        dirs.AddRange((Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries));
+        string[] names = OperatingSystem.IsWindows() ? new[] { name + ".exe" } : new[] { name };
+        var dirs = new List<string>();
+        if (OperatingSystem.IsWindows()) dirs.Add(Environment.SystemDirectory);
+        dirs.AddRange((Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+                          .Select(d => d.Trim().Trim('"')).Where(Path.IsPathFullyQualified));
         if (OperatingSystem.IsMacOS()) dirs.AddRange(new[] { "/opt/homebrew/bin", "/usr/local/bin" });
         foreach (string d in dirs)
             foreach (string n in names)

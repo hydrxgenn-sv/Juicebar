@@ -53,6 +53,9 @@ public static class Updater
             string tag = doc.RootElement.GetProperty("tag_name").GetString() ?? "";
             string url = doc.RootElement.GetProperty("html_url").GetString() ?? "";
             if (!Version.TryParse(tag.TrimStart('v', 'V'), out Version? v)) return null;
+            // Only links to this repository are ever opened, whatever the answer says.
+            if (!url.StartsWith($"https://github.com/{Repo}/", StringComparison.OrdinalIgnoreCase))
+                url = $"https://github.com/{Repo}/releases/latest";
             return new Release(new Version(v.Major, v.Minor, Math.Max(0, v.Build)), tag, url);
         }
         catch (Exception ex)

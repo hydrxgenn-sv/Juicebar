@@ -92,10 +92,16 @@ static class Sound
 
 static class Shell
 {
-    // Opens a web page in the default browser (start / open / xdg-open).
+    // Opens a web page in the default browser (start / open / xdg-open). Only https links are
+    // accepted, so this can never be turned into "run this file".
     public static void Open(string url)
     {
-        try { Process.Start(new ProcessStartInfo(url) { UseShellExecute = true }); }
+        if (!Uri.TryCreate(url, UriKind.Absolute, out Uri? uri) || uri.Scheme != Uri.UriSchemeHttps)
+        {
+            Log.Write("blocked a non-https link");
+            return;
+        }
+        try { Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true }); }
         catch (Exception ex) { Log.Write("open url: " + ex.Message); }
     }
 }

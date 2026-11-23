@@ -1,5 +1,9 @@
-# Juicebar: lets the logged-in user read HID receivers without root.
-# Installed in /etc/udev/rules.d/ by install.sh. One vendor per line.
-KERNEL=="hidraw*", ATTRS{idVendor}=="3554", TAG+="uaccess"
-KERNEL=="hidraw*", ATTRS{idVendor}=="1b1c", TAG+="uaccess"
-KERNEL=="hidraw*", ATTRS{idVendor}=="046d", TAG+="uaccess"
+# Juicebar: lets the logged-in user read the battery receivers it supports, without root.
+# Installed in /etc/udev/rules.d/ by install.sh.
+#
+# Only these exact receivers are opened up. A rule for a whole vendor would also expose the raw
+# input of that vendor's keyboards to every program the user runs (a keylogging risk).
+# Logitech devices are not listed: on Linux their battery comes from the kernel through UPower.
+# To support another receiver, add a line with its VID:PID (see "lsusb").
+KERNEL=="hidraw*", ATTRS{idVendor}=="3554", ATTRS{idProduct}=="f5f7", TAG+="uaccess"
+KERNEL=="hidraw*", ATTRS{idVendor}=="1b1c", ATTRS{idProduct}=="0a51", TAG+="uaccess"

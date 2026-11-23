@@ -1,0 +1,15 @@
+# Weekly pull requests when a dependency or a GitHub Action has a new (or security) release.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: /app/Juicebar.App
+    schedule:
+      interval: weekly
+  - package-ecosystem: nuget
+    directory: /app/Juicebar.Core
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

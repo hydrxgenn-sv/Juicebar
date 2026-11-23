@@ -98,7 +98,7 @@ static class SingleInstance
     {
         try
         {
-            using var c = new NamedPipeClientStream(".", Id + ".show", PipeDirection.Out);
+            using var c = new NamedPipeClientStream(".", Id + ".show", PipeDirection.Out, PipeOptions.CurrentUserOnly);
             c.Connect(1500);
             c.WriteByte(1);
         }
@@ -113,7 +113,8 @@ static class SingleInstance
             {
                 try
                 {
-                    using var s = new NamedPipeServerStream(Id + ".show", PipeDirection.In, 1);
+                    // CurrentUserOnly: other users of the computer cannot connect to (or impersonate) this pipe.
+                    using var s = new NamedPipeServerStream(Id + ".show", PipeDirection.In, 1, PipeTransmissionMode.Byte, PipeOptions.CurrentUserOnly);
                     s.WaitForConnection();
                     onShow();
                 }

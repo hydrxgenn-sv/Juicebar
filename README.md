@@ -151,6 +151,8 @@ It holds `config.ini`, `devices.txt`, `history.csv` (last 24 h), `stats.csv` (ba
 
 Juicebar talks to your devices locally and never sends readings anywhere. The only network request is the optional update check: an anonymous call to the public GitHub API for this repository's latest release. You can switch it off in *Settings → General*.
 
+It runs without administrator rights, only **reads** from your devices, never downloads or runs code by itself, and every release ships with SHA-256 checksums and a signed build-provenance attestation. See the [security policy](SECURITY.md) to verify a download or report a vulnerability.
+
 ## 🛠️ Build from source
 
 You'll need the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).

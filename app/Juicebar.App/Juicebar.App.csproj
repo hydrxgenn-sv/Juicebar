@@ -9,7 +9,7 @@
     <AssemblyName>Juicebar</AssemblyName>
     <RootNamespace>Juicebar.App</RootNamespace>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <Version>2.2.0</Version>
+    <Version>2.2.1</Version>
     <Product>Juicebar</Product>
     <!-- Icon of Juicebar.exe (Windows); macOS and Linux get .icns / .png from packaging/icons in publish.ps1 -->
     <ApplicationIcon>..\..\packaging\icons\juicebar.ico</ApplicationIcon>
@@ -21,9 +21,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.2.3" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3" />
+    <!-- 11.3.16+ pulls Tmds.DBus.Protocol 0.21.3, which fixes CVE-2026-39959 (D-Bus, Linux) -->
+    <PackageReference Include="Avalonia" Version="11.3.21" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.21" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.21" />
   </ItemGroup>
 
   <ItemGroup>
